@@ -1,0 +1,12 @@
+[{"lane": 1, "time": 0, "length": 2},
+
+{"lane": 1, "time": 2, "length": 1},
+
+{"lane": 1, "time": 3, "length": 1},
+{"lane": 2, "time": 4, "length": 1},
+{"lane": 3, "time": 5, "length": 1},
+{"lane": 1, "time": 6, "length": 3},
+{"lane": 3, "time": 9, "length": 4}
+]
+
+    

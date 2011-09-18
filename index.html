@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <head>
+    <title> TimeTracking </title>
+    <script type='text/javascript' src='jquery.js'></script>
+    <script type='text/javascript' src='raphael.js'></script>
+    <script type='text/javascript' src='drawing.js'></script>
+
+    <script type='text/javascript' charset='utf-8'>
+      jQuery(document).ready(function() {
+          var ctx = diego.drawing.init(
+              document.getElementById("the_graph_div"), 
+              800, 250);
+          jQuery('#button_refresh').click(function() {
+              diego.drawing.update(ctx);
+          });
+      });
+      jQuery.ajaxSetup ({
+          cache: false
+      });
+    </script>
+  </head>
+  <body>
+    <div id="the_graph_div">
+    </div>
+
+    <p id="demo"></p>
+
+    <div>
+      <button id="button_refresh" type="button">Refresh</button>
+    </div>
+
+    <script type="text/javascript">
+      document.getElementById("demo").innerHTML=Date();
+    </script>
+
+  </body>
+</html>
