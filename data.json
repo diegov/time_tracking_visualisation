@@ -1,12 +1,12 @@
-[{"lane": 1, "time": 0, "length": 2},
+[{"lane": 1, "time": "2011-01-01 05:00", "duration": "01:00"},
+{"lane": 1, "time": "2011-01-01 06:00", "duration": "01:30"},
+{"lane": 3, "time": "2011-01-01 07:30", "duration": "02:30"},
 
-{"lane": 1, "time": 2, "length": 1},
 
-{"lane": 1, "time": 3, "length": 1},
-{"lane": 2, "time": 4, "length": 1},
-{"lane": 3, "time": 5, "length": 1},
-{"lane": 1, "time": 6, "length": 3},
-{"lane": 3, "time": 9, "length": 4}
+{"lane": 1, "time": "2011-01-01 12:00", "duration": "01:00"},
+{"lane": 2, "time": "2011-01-01 15:00", "duration": "01:00"},
+{"lane": 3, "time": "2011-01-01 16:00", "duration": "01:00"},
+{"lane": 1, "time": "2011-01-01 17:00", "duration": "03:00"}
 ]
 
     

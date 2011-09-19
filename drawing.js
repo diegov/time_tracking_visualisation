@@ -1,11 +1,49 @@
 diego = {};
 diego.drawing = {};
 
+//TODO: Move away
+String.prototype.lpad = function(padString, length) {
+	var str = this;
+    while (str.length < length)
+        str = padString + str;
+    return str;
+};
+ 
+String.prototype.rpad = function(padString, length) {
+	var str = this;
+    while (str.length < length)
+        str = str + padString;
+    return str;
+};
+
 (function() {
     var ns = diego.drawing;
 
-    var context = function(paper, width, height) {
+    var context = function(paper, width, height, dt) {
+
+	this.parseDate = function(dateString) {
+	    console.log('Parsing ' + dateString);
+	    var year = parseInt(dateString.substring(0, 4))
+	    var month = parseInt(dateString.substring(5, 7));
+	    var day = parseInt(dateString.substring(8, 10));
+
+	    var hour = parseInt(dateString.substring(11, 13));
+	    var minute = parseInt(dateString.substring(14, 16));
+
+	    var dt = new Date(year, month, day, hour, minute, 0, 0);
+
+	    console.log('Parsed date: ' + dt.toString());
+	    return dt;
+	};
+
 	this.lanes = {};
+
+	this.dt = dt;
+
+	this.endDate = new Date(this.dt.valueOf());
+	this.endDate.setDate(this.endDate.getDate() + 1);
+
+	this.totalTime = this.endDate.valueOf() - this.dt.valueOf();
 
 	this.topOffset = 20;
 
@@ -16,10 +54,23 @@ diego.drawing = {};
 
 	this.paper = paper;
 
-	this.initLine = function(pos, text) {
-	    console.log('Line at' + pos);
-	    pos = Math.round(pos);
-	    var pcoords = [["M", 20, pos], ["L", width, pos]];
+	this.projectPosition = function(offset) {
+	    console.log('Projecting position ' + offset + ' against total time ' + this.totalTime);
+	    return ((offset * 1.0) / this.totalTime) * height;
+	}
+
+	this.getRelativePosition = function(time) {
+	    var offset = time.valueOf() - this.dt.valueOf();
+	    return this.projectPosition(offset) + this.topOffset;
+	};
+
+	this.initLine = function(time) {
+	    var text = time.getHours().toString().lpad('0', 2) +
+		':' + time.getMinutes().toString().lpad('0', 2);
+	    
+	    var pos = this.getRelativePosition(time);
+	    
+	    var pcoords = [["M", 40, pos], ["L", width, pos]];
 
 	    console.log(pcoords);
 
@@ -29,18 +80,19 @@ diego.drawing = {};
 		       opacity: 0.7, 
 		       "stroke-width": 2, 
 		       "stroke-dasharray": "."});
-	    var text = this.paper.text(10, pos, text.toString())
+	    var text = this.paper.text(20, pos, text)
 		.attr({fill: "#000", "font-size": 10});
 	};
 	
 	this.initBack = function() {
-	    var currPos = 0.0;
-	    var currPosInRatio = currPos * this.heightRatio;
-
-	    while (currPosInRatio <= height) {
-		this.initLine(currPosInRatio + this.topOffset, currPos);
-		currPos += 1.0;
-		currPosInRatio = currPos * this.heightRatio;
+	    var currTime = new Date(this.dt.valueOf());
+	    var limit = new Date(this.dt.valueOf());
+	    limit.setDate(this.dt.getDate() + 1);
+	    console.log('writing background lines');
+	    while (currTime <= limit) {
+		console.log(currTime.toString());
+		this.initLine(currTime);
+		currTime.setHours(currTime.getHours() + 1);
 	    }
 	};
 
@@ -54,16 +106,24 @@ diego.drawing = {};
 	    this.shapes = [];
 	};
 
-	this.getYPosFromTime = function(time) {
-	    return time * this.heightRatio + this.topOffset;
-	};
-
 	this.getXPosFromLaneIndex = function(lane) {
 	    return lane * this.widthRatio + this.topOffset;
 	};
 
 	this.getLengthFromDuration = function(duration) {
-	    return duration * this.heightRatio;
+	    //TODO: is there an easier way?
+	    var hoursPart = duration.toString().substring(0, 2);
+	    var minutesPart = duration.toString().substring(3, 5);
+
+	    var hours = parseInt(hoursPart);
+	    var minutes = parseInt(minutesPart);
+
+	    var t = new Date(2001, 01, 01);
+	    var t2 = new Date(2001, 01, 01, hours, minutes);
+
+	    var difference = t2.valueOf() - t.valueOf();
+	    var retVal = this.projectPosition(difference);
+	    return retVal;
 	};
 
 	this.createPath = function(xpos, ypos, len, pathWidth) {
@@ -92,10 +152,15 @@ diego.drawing = {};
 
 	this.createShape = function(lane, time, duration) {
 	    var st = this.paper.set();
+	    
+	    console.log('Creating shape for ' + lane + ' ' + time + ' ' + duration);
+	    var parsedDate = this.parseDate(time);
 
 	    var xpos = this.getXPosFromLaneIndex(lane);
-	    var ypos = this.getYPosFromTime(time);
+	    var ypos = this.getRelativePosition(parsedDate);
 	    var len = this.getLengthFromDuration(duration);
+
+	    console.log('len is ' + len.toString());
 
 	    var circle = this.paper.circle(xpos, ypos, len);
 	    circle.attr({fill: Raphael.getColor()});
@@ -119,7 +184,8 @@ diego.drawing = {};
 
 	    for (idx in values) {
 		var val = values[idx];
-		ctx.createShape(val.lane, val.time, val.length);
+		console.log(val)
+		ctx.createShape(val.lane, val.time, val.duration);
 	    }
 	};
 
@@ -139,6 +205,6 @@ diego.drawing = {};
 
     ns.init = function(div, width, height) {
 	var paper = Raphael(div, width, height);
-	return new context(paper, width, height);
+	return new context(paper, width, height - 40, new Date(2011, 01, 01));
     };
 })();
