@@ -46,9 +46,9 @@ String.prototype.rpad = function(padString, length) {
 	this.totalTime = this.endDate.valueOf() - this.dt.valueOf();
 
 	this.topOffset = 20;
+	this.leftOffset = 50;
 
-	this.heightRatio = (height / 20.0);
-	this.widthRatio = (width / 10.0);
+	this.widthRatio = (width / 40.0);
 
 	this.shapes = [];
 
@@ -107,7 +107,7 @@ String.prototype.rpad = function(padString, length) {
 	};
 
 	this.getXPosFromLaneIndex = function(lane) {
-	    return lane * this.widthRatio + this.topOffset;
+	    return lane * this.widthRatio + this.leftOffset;
 	};
 
 	this.getLengthFromDuration = function(duration) {
