@@ -2,25 +2,37 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
   <head>
     <title> TimeTracking </title>
-    <script type='text/javascript' src='jquery.js'></script>
-    <script type='text/javascript' src='raphael.js'></script>
-    <script type='text/javascript' src='drawing.js'></script>
+    <script type='text/javascript' src='js/jquery/jquery.js'></script>
+    <script type='text/javascript' src='js/jquery/jquery-ui.js'></script>
+    <script type='text/javascript' src='js/raphael.js'></script>
+    <script type='text/javascript' src='js/drawing.js'></script>
+    <link type="text/css" href="css/jquery/themes/overcast/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+    <link type="text/css" href="css/styles.css" rel="stylesheet" />
 
     <script type='text/javascript' charset='utf-8'>
       jQuery(document).ready(function() {
           var ctx = diego.drawing.init(
               document.getElementById("the_graph_div"), 
-              800, 350);
+              800, 350, 'data/data_');
+
           jQuery('#button_refresh').click(function() {
-              diego.drawing.update(ctx);
+              ctx.update();
+          });
+
+          jQuery('#datepicker').datepicker({
+              onSelect: function(dateText, inst) { ctx.setDate(ctx.parseDate(dateText)); },
+              dateFormat: 'yy-mm-dd'
           });
       });
+
       jQuery.ajaxSetup ({
           cache: false
       });
     </script>
   </head>
   <body>
+    <input type="text" name="date" id="datepicker" />
+
     <div id="the_graph_div">
     </div>
 

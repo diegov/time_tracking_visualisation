@@ -27,9 +27,14 @@ String.prototype.rpad = function(padString, length) {
 	    var month = parseInt(dateString.substring(5, 7));
 	    var day = parseInt(dateString.substring(8, 10));
 
-	    var hour = parseInt(dateString.substring(11, 13));
-	    var minute = parseInt(dateString.substring(14, 16));
-
+	    if (dateString.length > 10) {
+		var hour = parseInt(dateString.substring(11, 13));
+		var minute = parseInt(dateString.substring(14, 16));
+	    }
+	    else {
+		var hour = 0;
+		var minute = 0;
+	    }
 	    var dt = new Date(year, month, day, hour, minute, 0, 0);
 
 	    console.log('Parsed date: ' + dt.toString());
@@ -41,6 +46,7 @@ String.prototype.rpad = function(padString, length) {
 	this.dt = dt;
 
 	this.updateUrl = updateUrl;
+	console.log('Context ctor. updateUrl: ' + this.updateUrl);
 
 	this.endDate = new Date(this.dt.valueOf());
 	this.endDate.setDate(this.endDate.getDate() + 1);
@@ -190,19 +196,25 @@ String.prototype.rpad = function(padString, length) {
 		    ctx.createShape(val.lane, val.time, val.duration);
 		}
 	    };
+	    
+	    var url = this.updateUrl + this.dt.getFullYear().toString() + '-' +
+		this.dt.getMonth().toString().lpad('0', 2) + '-' + 
+		this.dt.getDate().toString().lpad('0', 2);
+	    console.log('url is: ' + this.updateUrl);
 
 	    jQuery.ajax({
-		url: this.updateUrl + this.dt.toString();
+		url: url,
+		dataType: 'json', 
 		success: function(data) {
 		    updateElements(data);
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 		    //TODO: Take callback arg for this
-		    alert(errorThrown);
+		    console.log(errorThrown.toString());
 		},
 		parserError: function() {
 		    //TODO: Take callback arg for this
-		    alert('failed to parse');
+		    console.log('failed to parse');
 		}
 	    });
 	};
@@ -213,8 +225,8 @@ String.prototype.rpad = function(padString, length) {
 	};
     };
 
-    ns.init = function(div, width, height) {
+    ns.init = function(div, width, height, url) {
 	var paper = Raphael(div, width, height);
-	return new context(paper, width, height - 40, new Date(2011, 01, 01));
+	return new context(paper, width, height - 40, new Date(2011, 01, 01), url);
     };
 })();
