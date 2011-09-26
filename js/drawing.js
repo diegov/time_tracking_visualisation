@@ -19,7 +19,7 @@ String.prototype.rpad = function(padString, length) {
 (function() {
     var ns = diego.drawing;
 
-    var context = function(paper, width, height, dt) {
+    var context = function(paper, width, height, dt, updateUrl) {
 
 	this.parseDate = function(dateString) {
 	    console.log('Parsing ' + dateString);
@@ -39,6 +39,8 @@ String.prototype.rpad = function(padString, length) {
 	this.lanes = {};
 
 	this.dt = dt;
+
+	this.updateUrl = updateUrl;
 
 	this.endDate = new Date(this.dt.valueOf());
 	this.endDate.setDate(this.endDate.getDate() + 1);
@@ -175,32 +177,40 @@ String.prototype.rpad = function(padString, length) {
 
 	    return st;
 	};
-    };
 
-    ns.update = function(ctx) {
-	var updateElements = function(data) {
-	    ctx.clearAllShapes();
-	    var values = data;
+	this.update = function() {
+	    var ctx = this;
+	    var updateElements = function(data) {
+		ctx.clearAllShapes();
+		var values = data;
 
-	    for (idx in values) {
-		var val = values[idx];
-		console.log(val)
-		ctx.createShape(val.lane, val.time, val.duration);
-	    }
+		for (idx in values) {
+		    var val = values[idx];
+		    console.log(val)
+		    ctx.createShape(val.lane, val.time, val.duration);
+		}
+	    };
+
+	    jQuery.ajax({
+		url: this.updateUrl + this.dt.toString();
+		success: function(data) {
+		    updateElements(data);
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+		    //TODO: Take callback arg for this
+		    alert(errorThrown);
+		},
+		parserError: function() {
+		    //TODO: Take callback arg for this
+		    alert('failed to parse');
+		}
+	    });
 	};
 
-	jQuery.ajax({
-	    url: 'data.json',
-	    success: function(data) {
-		updateElements(data);
-	    },
-	    error: function(jqXHR, textStatus, errorThrown) {
-		alert(errorThrown);
-	    },
-	    parserError: function() {
-		alert('failed to parse');
-	    }
-	});
+	this.setDate = function(dt) {
+	    this.dt = dt;
+	    this.update();
+	};
     };
 
     ns.init = function(div, width, height) {
