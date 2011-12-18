@@ -3,14 +3,14 @@ diego.drawing = {};
 
 //TODO: Move away
 String.prototype.lpad = function(padString, length) {
-	var str = this;
+    var str = this;
     while (str.length < length)
         str = padString + str;
     return str;
 };
- 
+
 String.prototype.rpad = function(padString, length) {
-	var str = this;
+    var str = this;
     while (str.length < length)
         str = str + padString;
     return str;
@@ -28,6 +28,9 @@ String.prototype.rpad = function(padString, length) {
 	    var day = parseInt(dateString.substring(8, 10));
 
 	    if (dateString.length > 10) {
+		//Make it compatible with emacs dates which include the day 
+		//of the week between the date and time
+		dateString = dateString.replace(/Mon |Tue |Wed |Thu |Fri |Sat |Sun /gi, "");
 		var hour = parseInt(dateString.substring(11, 13));
 		var minute = parseInt(dateString.substring(14, 16));
 	    }
@@ -114,11 +117,39 @@ String.prototype.rpad = function(padString, length) {
 	    this.shapes = [];
 	};
 
-	this.getXPosFromLaneIndex = function(lane) {
-	    return lane * this.widthRatio + this.leftOffset;
+
+	this.getLaneIndex = function(lane) {
+	    var idx = 0;
+	    if (lane in this.lanes) {
+		idx = this.lanes[lane];
+	    }
+	    else {
+		//If it's an int, interpret as an index
+		var asIdx = parseInt(lane);
+		if (!isNaN(asIdx)) {
+		    idx = asIdx;
+		}
+		else {
+		    var max = -1;
+		    for (key in this.lanes) {
+			if (this.lanes[key] > max) {
+			    max = this.lanes[key];
+			}
+		    }
+		    idx = max + 1;
+		}
+		this.lanes[lane] = idx;
+	    }
+	    console.log('Index for lane ' + lane + ' is ' + idx.toString())
+	    return idx;
+	}
+
+	this.getXPosFromLane = function(lane) {
+	    var idx = this.getLaneIndex(lane);
+	    return idx * this.widthRatio + this.leftOffset;
 	};
 
-	this.getLengthFromDuration = function(duration) {
+	this.durationStringToEpoch = function(duration) {
 	    //TODO: is there an easier way?
 	    var hoursPart = duration.toString().substring(0, 2);
 	    var minutesPart = duration.toString().substring(3, 5);
@@ -130,7 +161,11 @@ String.prototype.rpad = function(padString, length) {
 	    var t2 = new Date(2001, 01, 01, hours, minutes);
 
 	    var difference = t2.valueOf() - t.valueOf();
-	    var retVal = this.projectPosition(difference);
+	    return difference
+	};
+
+	this.getLengthFromDuration = function(durationInEpoch) {
+	    var retVal = this.projectPosition(durationInEpoch);
 	    return retVal;
 	};
 
@@ -138,7 +173,7 @@ String.prototype.rpad = function(padString, length) {
 	    var st = this.paper.set();
 	    var pcoords = [["M", xpos, ypos], ["L", xpos, ypos + len]];
 	    var path = this.paper.path(pcoords)
-		//.attr({stroke: "#444"})
+	    //.attr({stroke: "#444"})
 		.attr({stroke: Raphael.getColor(), 
 		       "stroke-linecap": "round", 
 		       opacity: 1, 
@@ -158,15 +193,15 @@ String.prototype.rpad = function(padString, length) {
 	    return st;
 	};
 
-	this.createShape = function(lane, time, duration) {
+	this.createShape = function(lane, time, durationInEpoch) {
 	    var st = this.paper.set();
 	    
-	    console.log('Creating shape for ' + lane + ' ' + time + ' ' + duration);
+	    console.log('Creating shape for ' + lane + ' ' + time + ' ' + durationInEpoch);
 	    var parsedDate = this.parseDate(time);
 
-	    var xpos = this.getXPosFromLaneIndex(lane);
+	    var xpos = this.getXPosFromLane(lane);
 	    var ypos = this.getRelativePosition(parsedDate);
-	    var len = this.getLengthFromDuration(duration);
+	    var len = this.getLengthFromDuration(durationInEpoch);
 
 	    console.log('len is ' + len.toString());
 
@@ -186,6 +221,7 @@ String.prototype.rpad = function(padString, length) {
 
 	this.update = function() {
 	    var ctx = this;
+	    thisNs = this;
 	    var updateElements = function(data) {
 		ctx.clearAllShapes();
 		var values = data;
@@ -193,7 +229,13 @@ String.prototype.rpad = function(padString, length) {
 		for (idx in values) {
 		    var val = values[idx];
 		    console.log(val)
-		    ctx.createShape(val.lane, val.time, val.duration);
+		    if ("duration" in val) {
+			duration = thisNs.durationStringToEpoch(val.duration);
+		    }
+		    else {
+			duration = (thisNs.parseDate(val.to) - thisNs.parseDate(val.from));
+		    }
+		    ctx.createShape(val.lane, val.from, duration);
 		}
 	    };
 	    

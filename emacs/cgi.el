@@ -31,7 +31,7 @@
 
 (defun diego-clockserve-convert-clock-data (single-record)
    (let ((flattened (flatten (cdr single-record))))
-     (cons (cons 'name (car single-record))
+     (cons (cons 'lane (car single-record))
 	   (cons (cons 'from (car flattened))
 		 (cons (cons 'to (nth 1 flattened)) nil)))))
   
