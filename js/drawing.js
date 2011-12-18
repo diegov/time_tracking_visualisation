@@ -38,7 +38,9 @@ String.prototype.rpad = function(padString, length) {
 		var hour = 0;
 		var minute = 0;
 	    }
-	    var dt = new Date(year, month, day, hour, minute, 0, 0);
+	    console.log('year: ' + year.toString() + '. month: ' + month.toString() +
+			'. day: ' + day.toString());
+	    var dt = new Date(year, month - 1, day, hour, minute, 0, 0);
 
 	    console.log('Parsed date: ' + dt.toString());
 	    return dt;
@@ -157,8 +159,8 @@ String.prototype.rpad = function(padString, length) {
 	    var hours = parseInt(hoursPart);
 	    var minutes = parseInt(minutesPart);
 
-	    var t = new Date(2001, 01, 01);
-	    var t2 = new Date(2001, 01, 01, hours, minutes);
+	    var t = new Date(2001, 00, 01);
+	    var t2 = new Date(2001, 00, 01, hours, minutes);
 
 	    var difference = t2.valueOf() - t.valueOf();
 	    return difference
@@ -182,9 +184,9 @@ String.prototype.rpad = function(padString, length) {
 
 	    path.attr({fill: Raphael.getColor()});
 
-	    var nodeHead1 = this.paper.circle(xpos, ypos, pathWidth)
+	    var nodeHead1 = this.paper.circle(xpos, ypos, pathWidth * 0.75)
 	    	.attr({fill: '#222'});
-	    var nodeHead2 = this.paper.circle(xpos, ypos + len, pathWidth)
+	    var nodeHead2 = this.paper.circle(xpos, ypos + len, pathWidth * 0.75)
 	    	.attr({fill: '#222'});
 
 	    st.push(path);
@@ -240,7 +242,7 @@ String.prototype.rpad = function(padString, length) {
 	    };
 	    
 	    var url = this.updateUrl + this.dt.getFullYear().toString() + '-' +
-		this.dt.getMonth().toString().lpad('0', 2) + '-' + 
+		(this.dt.getMonth() + 1).toString().lpad('0', 2) + '-' + 
 		this.dt.getDate().toString().lpad('0', 2);
 	    console.log('url is: ' + this.updateUrl);
 
@@ -269,6 +271,6 @@ String.prototype.rpad = function(padString, length) {
 
     ns.init = function(div, width, height, url) {
 	var paper = Raphael(div, width, height);
-	return new context(paper, width, height - 40, new Date(2011, 01, 01), url);
+	return new context(paper, width, height - 40, new Date(2011, 00, 01), url);
     };
 })();
