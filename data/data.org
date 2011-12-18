@@ -1,0 +1,46 @@
+#+COLUMNS: %50ITEM %20ID %10Effort %20CLOCKSUM[::]
+#+STARTUP: INDENT
+
+* Data
+  CLOCK: [2011-12-15 Thu 22:41]--[2011-12-15 Thu 22:41] =>  0:01
+  :PROPERTIES:
+  :ID:       a258dd92-5e86-4470-bc85-9f6b3fba4f2a
+  :END:
+#+BEGIN: clocktable :maxlevel 3 :scope subtree :id "a258dd92-5e86-4470-bc85-9f6b3fba4f2a"
+Clock summary at [2011-12-15 Thu 22:35]
+
+| Headline     | Time    |      |      |
+|--------------+---------+------+------|
+| *Total time* | *12:05* |      |      |
+|--------------+---------+------+------|
+| Data         | 12:05   |      |      |
+| Thinking     |         | 1:03 |      |
+| What is this |         |      | 0:01 |
+| Reading      |         | 0:52 |      |
+| Sleeping     |         | 3:25 |      |
+| Programming  |         | 4:54 |      |
+| Watching tv  |         | 1:51 |      |
+#+END:
+
+** Thinking
+   CLOCK: [2011-12-15 Thu 22:31]--[2011-12-15 Thu 22:33] =>  0:03
+   CLOCK: [2011-12-15 Thu 10:29]--[2011-12-15 Thu 11:29] =>  1:00
+
+*** What is this
+    CLOCK: [2011-12-15 Thu 22:33]--[2011-12-15 Thu 22:34] =>  0:01
+
+
+** Reading
+   CLOCK: [2011-12-15 Thu 22:30]--[2011-12-15 Thu 22:31] =>  0:01
+   CLOCK: [2011-12-15 Thu 11:29]--[2011-12-15 Thu 12:20] =>  0:51
+
+** Sleeping
+   CLOCK: [2011-12-15 Thu 12:20]--[2011-12-15 Thu 15:45] =>  3:25
+
+** Programming
+   CLOCK: [2011-12-15 Thu 22:20]--[2011-12-15 Thu 22:30] =>  0:10
+   CLOCK: [2011-12-15 Thu 15:45]--[2011-12-15 Thu 20:29] =>  4:44
+
+** Watching tv
+  CLOCK: [2011-12-15 Thu 20:29]--[2011-12-15 Thu 22:20] =>  1:51
+
