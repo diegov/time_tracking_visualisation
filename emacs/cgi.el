@@ -30,20 +30,30 @@
   (apply #'append list-of-lists))
 
 (defun diego-clockserve-convert-clock-data (single-record)
-   (let ((flattened (flatten (cdr single-record))))
-     (cons (cons 'lane (car single-record))
-	   (cons (cons 'from (car flattened))
-		 (cons (cons 'to (nth 1 flattened)) nil)))))
+  (let ((flattened (flatten (cdr single-record))))
+    (cons (cons 'lane (car single-record))
+	  (cons (cons 'from (car flattened))
+		(cons (cons 'to (nth 1 flattened)) nil)))))
   
 (defun diego-clockserve-convert-clock-list-to-plist (data)
   (if data 
       (cons (diego-clockserve-convert-clock-data (car data)) 
 	    (diego-clockserve-convert-clock-list-to-plist (cdr data)))))
 
-(defun diego-clockserve-collect-data ()
-  (diego-clockserve-convert-clock-list-to-plist 
-   (flatten (org-map-entries 'diego-clockserve-collect-data-for-entry))))
+(defun diego-clockserve-in-range (day entry)
+  (let ((dt (substring (car (nth 1 entry)) 0 10)))
+    (string= dt day)))
 
+(defun diego-clockserve-filter-by-day (day entries)
+  (loop for e in entries if (diego-clockserve-in-range day e) collect e))
+
+(defun diego-clockserve-collect-data (&optional day)
+  (diego-clockserve-convert-clock-list-to-plist 
+   (let ((initial (flatten (org-map-entries 'diego-clockserve-collect-data-for-entry))))
+     (if day
+	 (diego-clockserve-filter-by-day day initial)
+       initial))))
+     
 (defun diego-clockserve-extract-to-new-buffer ()
   (interactive)
   (let ((data (diego-clockserve-collect-and-print))
@@ -60,18 +70,22 @@
     (switch-to-buffer (get-buffer-create newBuf))
     (insert (json-encode-array data))))
 
-(defun diego-clockserve-table-data-from-file (filename)
+(defun diego-clockserve-table-data-from-file (filename &optional day)
   (find-file filename)
-  (let ((data (diego-clockserve-collect-data)))
+  (let ((data (diego-clockserve-collect-data day)))
 	(json-encode-array data)))
 
 (setq query (getenv "QUERY_STRING"))
 
 (setq query-list (mapcar (lambda (x) (split-string x "=")) (split-string query "&")))
 
-(princ
- (concat
-  "Content-type: application/json\n\n"
-  (diego-clockserve-table-data-from-file 
-   "/home/d/Code/time_tracking_visualisation/data/data.org")
-  "\n\n"))
+(let ((dt (nth 1 (car query-list))))
+  (princ
+   (concat
+    "Content-type: application/json\n\n"
+    (diego-clockserve-table-data-from-file 
+     "/home/d/Code/time_tracking_visualisation/data/data.org"
+     dt)
+    "\n\n")))
+
+

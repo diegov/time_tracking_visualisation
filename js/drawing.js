@@ -21,6 +21,27 @@ String.prototype.rpad = function(padString, length) {
 
     var context = function(paper, width, height, dt, updateUrl) {
 
+	this.lanes = {};
+
+	this.dt = dt;
+
+	this.updateUrl = updateUrl;
+	console.log('Context ctor. updateUrl: ' + this.updateUrl);
+
+	this.endDate = new Date(this.dt.valueOf());
+	this.endDate.setDate(this.endDate.getDate() + 1);
+
+	this.totalTime = this.endDate.valueOf() - this.dt.valueOf();
+
+	this.topOffset = 20;
+	this.leftOffset = 50;
+
+	this.widthRatio = (width / 40.0);
+
+	this.shapes = [];
+
+	this.paper = paper;
+
 	this.parseDate = function(dateString) {
 	    console.log('Parsing ' + dateString);
 	    var year = parseInt(dateString.substring(0, 4))
@@ -46,35 +67,14 @@ String.prototype.rpad = function(padString, length) {
 	    return dt;
 	};
 
-	this.lanes = {};
-
-	this.dt = dt;
-
-	this.updateUrl = updateUrl;
-	console.log('Context ctor. updateUrl: ' + this.updateUrl);
-
-	this.endDate = new Date(this.dt.valueOf());
-	this.endDate.setDate(this.endDate.getDate() + 1);
-
-	this.totalTime = this.endDate.valueOf() - this.dt.valueOf();
-
-	this.topOffset = 20;
-	this.leftOffset = 50;
-
-	this.widthRatio = (width / 40.0);
-
-	this.shapes = [];
-
-	this.paper = paper;
-
-	this.projectPosition = function(offset) {
-	    console.log('Projecting position ' + offset + ' against total time ' + this.totalTime);
-	    return ((offset * 1.0) / this.totalTime) * height;
-	}
-
 	this.getRelativePosition = function(time) {
 	    var offset = time.valueOf() - this.dt.valueOf();
-	    return this.projectPosition(offset) + this.topOffset;
+	    return this._projectPosition(offset) + this.topOffset;
+	};
+
+	this._projectPosition = function(offset) {
+	    console.log('Projecting position ' + offset + ' against total time ' + this.totalTime);
+	    return ((offset * 1.0) / this.totalTime) * height;
 	};
 
 	this.initLine = function(time) {
@@ -109,8 +109,6 @@ String.prototype.rpad = function(padString, length) {
 	    }
 	};
 
-	this.initBack();
-
 	this.clearAllShapes = function() {
 	    for (idx in this.shapes) {
 	        this.shapes[idx].remove();
@@ -118,7 +116,6 @@ String.prototype.rpad = function(padString, length) {
 
 	    this.shapes = [];
 	};
-
 
 	this.getLaneIndex = function(lane) {
 	    var idx = 0;
@@ -167,7 +164,7 @@ String.prototype.rpad = function(padString, length) {
 	};
 
 	this.getLengthFromDuration = function(durationInEpoch) {
-	    var retVal = this.projectPosition(durationInEpoch);
+	    var retVal = this._projectPosition(durationInEpoch);
 	    return retVal;
 	};
 
@@ -269,8 +266,12 @@ String.prototype.rpad = function(padString, length) {
 	};
     };
 
+    ns.Context = context;
+
     ns.init = function(div, width, height, url) {
 	var paper = Raphael(div, width, height);
-	return new context(paper, width, height - 40, new Date(2011, 00, 01), url);
+	var ctx = new context(paper, width, height - 40, new Date(2011, 00, 01), url);
+	ctx.initBack();
+	return ctx;
     };
 })();
